@@ -79,6 +79,8 @@ class TapService {
 - Use wrangler for local development and testing
 - Test API endpoints with curl during development
 
+For detailed repeatable patterns and workflows, see [CODE_GUIDELINES.md](./CODE_GUIDELINES.md).
+
 ## Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
