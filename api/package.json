@@ -10,12 +10,12 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260103.0",
+    "@hono/swagger-ui": "^0.5.3",
     "@types/bun": "latest",
     "typescript": "^5",
     "wrangler": "^4.54.0"
   },
   "dependencies": {
-    "@hono/swagger-ui": "^0.5.3",
     "hono": "^4.11.3",
     "jose": "^6.1.3"
   }

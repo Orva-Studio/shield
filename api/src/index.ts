@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { swaggerUI } from '@hono/swagger-ui';
 import { createAuthMiddleware } from './middleware/auth.ts';
 import { UserService } from './services/UserService.ts';
 import { TapService } from './services/TapService.ts';
@@ -9,18 +8,14 @@ import openAPISpec from './openapi.ts';
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
-// Enable CORS for all routes
 app.use('*', cors());
 
-// Health check endpoint (no auth required)
 app.get('/health', (c) => {
   return c.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Apply auth middleware to all /api routes
 app.use('/api/*', createAuthMiddleware());
 
-// Returns the authenticated user's profile information
 app.get('/api/me', async (c) => {
   const authUser = c.get('user');
   const userService = new UserService(c.env.DB);
@@ -30,13 +25,11 @@ app.get('/api/me', async (c) => {
   return c.json({ user });
 });
 
-// Records a new tap (resist or yield) for the authenticated user
 app.post('/api/taps', async (c) => {
   const authUser = c.get('user');
   const userService = new UserService(c.env.DB);
   const tapService = new TapService(c.env.DB);
 
-  // Ensure user exists
   await userService.findOrCreate(authUser);
 
   const body = await c.req.json<CreateTapInput>();
@@ -50,7 +43,6 @@ app.post('/api/taps', async (c) => {
   return c.json({ tap }, 201);
 });
 
-// Lists the authenticated user's tap history with optional date filtering
 app.get('/api/taps', async (c) => {
   const authUser = c.get('user');
   const tapService = new TapService(c.env.DB);
@@ -68,7 +60,6 @@ app.get('/api/taps', async (c) => {
   return c.json({ taps });
 });
 
-// Returns aggregated statistics for the authenticated user's taps
 app.get('/api/taps/stats', async (c) => {
   const authUser = c.get('user');
   const tapService = new TapService(c.env.DB);
@@ -78,10 +69,15 @@ app.get('/api/taps/stats', async (c) => {
   return c.json({ stats });
 });
 
-// Serve OpenAPI specification as JSON
 app.get('/openapi.json', (c) => c.json(openAPISpec));
 
-// Serve Swagger UI for interactive API documentation
-app.get('/docs', swaggerUI({ url: '/openapi.json' }));
+app.get('/docs', async (c) => {
+  if (c.env.DEV_MODE !== 'true') {
+    return c.json({ error: 'Documentation is only available in development mode' }, 404);
+  }
+
+  const { swaggerUI } = await import('@hono/swagger-ui');
+  return swaggerUI({ url: '/openapi.json' })(c);
+});
 
 export default app;
