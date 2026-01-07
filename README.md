@@ -25,11 +25,13 @@ bun run dev
 
 ## API Documentation
 
-Interactive API documentation is available via Swagger UI:
+Interactive API documentation is available via Swagger UI in development mode only:
 
 1. Start the dev server: `bun run dev`
 2. Visit `http://localhost:8787/docs` in your browser
 3. Explore all endpoints and test them directly from the UI
+
+**Note:** Documentation routes (`/docs` and `/openapi.json`) are disabled in production to keep the API private.
 
 The API supports these main endpoints:
 - `GET /health` - Health check (no auth required)
