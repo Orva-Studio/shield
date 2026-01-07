@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Bun
+bun.lockb
+*.bun
+
+# Build outputs
+dist/
+.output/
+
+# Cloudflare
+.wrangler/
+.dev.vars
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Testing
+coverage/
+
+# Beads (local AI context)
+.beads/

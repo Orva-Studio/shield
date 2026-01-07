@@ -1,0 +1,21 @@
+{
+  "name": "shieldtap-api",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:migrate": "wrangler d1 execute shieldtap-db --local --file=src/db/schema.sql"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260103.0",
+    "@types/bun": "latest",
+    "typescript": "^5",
+    "wrangler": "^4.54.0"
+  },
+  "dependencies": {
+    "hono": "^4.11.3",
+    "jose": "^6.1.3"
+  }
+}
