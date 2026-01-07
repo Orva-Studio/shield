@@ -1,14 +1,21 @@
 name = "shieldtap-api"
 main = "src/index.ts"
 compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
 
 [vars]
-# Your Cloudflare Access team domain (e.g., https://yourteam.cloudflareaccess.com)
-TEAM_DOMAIN = "https://yourteam.cloudflareaccess.com"
-# Your Cloudflare Access Application Audience (AUD) tag
-POLICY_AUD = "your-policy-aud-here"
-# Set to "true" for local development without CF Access (DO NOT deploy with this enabled)
+# Base URL for the auth server (update for production)
+BETTER_AUTH_URL = "http://localhost:8787"
+# Set to "true" for local development (DO NOT deploy with this enabled)
 DEV_MODE = "true"
+# Google OAuth credentials (set in Cloudflare dashboard for production)
+GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_SECRET = ""
+# Resend API key for email (set in Cloudflare dashboard for production)
+RESEND_API_KEY = ""
+
+# Secrets (use `wrangler secret put` for production):
+# - BETTER_AUTH_SECRET: 32+ character secret for encryption
 
 [[d1_databases]]
 binding = "DB"
