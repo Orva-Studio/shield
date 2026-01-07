@@ -14,8 +14,6 @@ This document captures repeatable patterns and workflows for scaffolding new ful
 6. [Git Workflow Standards](#git-workflow-standards)
 7. [Environment & Configuration](#environment--configuration)
 8. [Service Class Pattern](#service-class-pattern)
-9. [TypeScript Type Patterns](#typescript-type-patterns)
-10. [Documentation Standards](#documentation-standards)
 
 ---
 
@@ -138,23 +136,6 @@ app.post('/api/taps', async (c) => { /* ... */ });
 }
 ```
 
-### Unix Timestamps
-
-**RECOMMENDED**: Use Unix timestamps (integers) for all dates, not ISO strings.
-
-```typescript
-const timestamp = Math.floor(Date.now() / 1000);
-```
-
-### Error Handling
-
-**RECOMMENDED**: Use null-coalescing for optional data.
-
-```typescript
-return result ?? null;
-return countsResult?.total_resists ?? 0;
-```
-
 ---
 
 ## API Development Workflow
@@ -204,29 +185,6 @@ app.get('/api/me', async (c) => {
 });
 ```
 
-### Error Response Format
-
-**RECOMMENDED**: Standardized error responses.
-
-```typescript
-// Error object structure
-{ error: string }
-
-// Usage
-return c.json({ error: 'Invalid input' }, 400);
-return c.json({ error: 'Unauthorized' }, 401);
-```
-
-### HTTP Status Codes
-
-**RECOMMENDED**: Use appropriate status codes.
-
-- `200` - Success
-- `201` - Created
-- `400` - Bad Request (validation errors)
-- `401` - Unauthorized (missing/invalid auth)
-- `404` - Not Found
-- `500` - Internal Server Error
 
 ---
 
@@ -460,154 +418,3 @@ async findOrCreate(id: string): Promise<User> {
 }
 ```
 
----
-
-## TypeScript Type Patterns
-
-### Bindings vs Variables
-
-**CRITICAL**: Separate environment bindings from request context variables.
-
-```typescript
-// Environment bindings (config, DB, secrets)
-interface Bindings {
-  DB: D1Database;
-  TEAM_DOMAIN: string;
-  POLICY_AUD: string;
-}
-
-// Context variables (set by middleware)
-interface Variables {
-  user: AuthUser;
-}
-
-// Combined context type
-type AppContext = Context<{ Bindings: Bindings; Variables: Variables }>;
-```
-
-### Union Types
-
-**RECOMMENDED**: Use union types for enums.
-
-```typescript
-type TapType = 'resist' | 'yield';
-
-if (!['resist', 'yield'].includes(body.type)) {
-  return c.json({ error: 'Invalid type' }, 400);
-}
-```
-
-### Optional vs Nullable
-
-**RECOMMENDED**: Distinguish optional from nullable fields.
-
-```typescript
-interface Tap {
-  id: number;
-  category: string | null;  // Can be null
-  notes?: string;           // May be omitted
-}
-```
-
----
-
-## Documentation Standards
-
-### Required Documentation Files
-
-**CRITICAL**: Project MUST have these files:
-
-- **README.md** - User-facing getting started guide
-- **AGENTS.md** - AI agent guidelines and workflow
-- **CODE_GUIDELINES.md** - This file (repeatable patterns)
-
-### README Structure
-
-**RECOMMENDED**: Standard README sections.
-
-```markdown
-# Project Name
-
-Brief description (one-liner)
-
-## Features
-
-- Feature 1
-- Feature 2
-
-## Tech Stack
-
-- Runtime/Framework
-- Database
-- Authentication
-
-## Getting Started
-
-```bash
-# Commands to set up and run
-```
-
-## API Documentation
-
-Link to Swagger UI and usage instructions
-
-## License
-
-MIT
-```
-
-### AGENTS.md Content
-
-**CRITICAL**: AGENTS.md MUST include:
-
-- App description
-- Tech stack
-- Coding preferences (critical vs recommended)
-- Session completion workflow (MANDATORY git push requirement)
-- Reference to CODE_GUIDELINES.md for patterns
-
----
-
-## Quick Reference Checklist
-
-When scaffolding a new project, ensure:
-
-1. [ ] Set up directory structure (api/, client/)
-2. [ ] Configure Bun + TypeScript + Wrangler
-3. [ ] Create service layer with classes
-4. [ ] Implement OpenAPI spec in `openapi.ts`
-5. [ ] Add Swagger UI (dev-only with dynamic import)
-6. [ ] Configure DEV_MODE in wrangler.toml
-7. [ ] Set up git with conventional commits
-8. [ ] Create AGENTS.md for AI agent guidelines
-9. [ ] Create CODE_GUIDELINES.md (this file)
-10. [ ] Ensure all critical patterns are applied
-
----
-
-## Pattern Priority Summary
-
-### Critical Patterns (MUST)
-- Function declarations, not arrow functions
-- `.ts` extensions in imports
-- Bun as package manager
-- OpenAPI specification for all endpoints
-- Prepared statements for all database queries
-- DEV_MODE flag for dev/prod separation
-- Git push after every commit
-- Services as classes with dependency injection
-- All service methods async with Promise<T>
-
-### Recommended Patterns (SHOULD)
-- Type-only imports
-- Single-line JSDoc comments
-- Unix timestamps for dates
-- Standardized error responses
-- Idempotent schema statements
-- Feature branch workflow
-- Union types for enums
-- Comprehensive documentation
-
----
-
-This file will be updated as the project grows and new patterns are discovered. Refer to AGENTS.md for detailed code examples and session completion workflow.
