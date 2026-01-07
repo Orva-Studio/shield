@@ -1,9 +1,11 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { swaggerUI } from '@hono/swagger-ui';
 import { createAuthMiddleware } from './middleware/auth.ts';
 import { UserService } from './services/UserService.ts';
 import { TapService } from './services/TapService.ts';
 import type { Bindings, Variables, CreateTapInput } from './types.ts';
+import openAPISpec from './openapi.ts';
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
@@ -75,5 +77,11 @@ app.get('/api/taps/stats', async (c) => {
 
   return c.json({ stats });
 });
+
+// Serve OpenAPI specification as JSON
+app.get('/openapi.json', (c) => c.json(openAPISpec));
+
+// Serve Swagger UI for interactive API documentation
+app.get('/docs', swaggerUI({ url: '/openapi.json' }));
 
 export default app;
