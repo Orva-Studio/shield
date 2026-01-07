@@ -1,74 +1,44 @@
 import { createMiddleware } from 'hono/factory';
-import { jwtVerify, createRemoteJWKSet } from 'jose';
-import type { Bindings, Variables, AuthUser } from '../types.ts';
+import { createAuth, type AuthEnv } from '../lib/auth.ts';
+import type { Bindings, Variables, AuthUser, AuthSession } from '../types.ts';
 
-// Extended bindings to include optional DEV_MODE
-interface AuthBindings extends Bindings {
-  DEV_MODE?: string;
-}
-
-// Cloudflare Access JWT payload structure
-interface CFAccessJWTPayload {
-  sub: string;
-  email: string;
-  aud: string[];
-  iss: string;
-  iat: number;
-  exp: number;
-}
-
-// Creates middleware that validates Cloudflare Access JWT tokens
+// Creates middleware that initializes Better Auth and validates sessions
 export function createAuthMiddleware() {
-  return createMiddleware<{ Bindings: AuthBindings; Variables: Variables }>(
+  return createMiddleware<{ Bindings: Bindings; Variables: Variables }>(
     async (c, next) => {
-      // Dev mode bypass for local testing (DO NOT use in production)
-      if (c.env.DEV_MODE === 'true') {
-        const devUser: AuthUser = {
-          id: 'dev-user-id',
-          email: 'dev@example.com',
-        };
-        c.set('user', devUser);
+      // Initialize Better Auth for this request
+      const auth = createAuth(c.env as AuthEnv);
+      c.set('auth', auth);
+
+      // Get session from request headers/cookies
+      const session = await auth.api.getSession({ headers: c.req.raw.headers });
+
+      if (!session) {
+        c.set('user', null);
+        c.set('session', null);
         await next();
         return;
       }
 
-      const teamDomain = c.env.TEAM_DOMAIN;
-      const policyAud = c.env.POLICY_AUD;
+      // Set user and session in context
+      c.set('user', session.user as AuthUser);
+      c.set('session', session.session as AuthSession);
+      await next();
+    }
+  );
+}
 
-      if (!policyAud || !teamDomain) {
-        return c.json({ error: 'Missing required auth configuration' }, 500);
+// Middleware that requires authentication (returns 401 if not authenticated)
+export function requireAuth() {
+  return createMiddleware<{ Bindings: Bindings; Variables: Variables }>(
+    async (c, next) => {
+      const user = c.get('user');
+
+      if (!user) {
+        return c.json({ error: 'Unauthorized' }, 401);
       }
 
-      const token = c.req.header('cf-access-jwt-assertion');
-
-      if (!token) {
-        return c.json({ error: 'Missing required CF Access JWT' }, 401);
-      }
-
-      try {
-        const JWKS = createRemoteJWKSet(
-          new URL(`${teamDomain}/cdn-cgi/access/certs`)
-        );
-
-        const { payload } = await jwtVerify(token, JWKS, {
-          issuer: teamDomain,
-          audience: policyAud,
-        });
-
-        const cfPayload = payload as unknown as CFAccessJWTPayload;
-
-        const user: AuthUser = {
-          id: cfPayload.sub,
-          email: cfPayload.email,
-        };
-
-        c.set('user', user);
-
-        await next();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        return c.json({ error: `Invalid token: ${message}` }, 401);
-      }
+      await next();
     }
   );
 }

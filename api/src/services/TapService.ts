@@ -95,8 +95,8 @@ export class TapService {
       .all<{ tap_date: string; yield_count: number }>();
 
     let streak = 0;
-    const today = new Date().toISOString().split('T')[0];
-    let expectedDate = today;
+    const today = new Date().toISOString().split('T')[0] as string;
+    let expectedDate: string = today;
 
     for (const day of taps.results) {
       // If there's a gap in dates, streak is broken

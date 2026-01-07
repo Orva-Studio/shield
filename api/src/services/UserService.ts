@@ -1,5 +1,7 @@
-import type { User, AuthUser } from '../types.ts';
+import type { User } from '../types.ts';
 
+// UserService handles app-specific user queries.
+// Note: User creation/authentication is handled by Better Auth.
 export class UserService {
   constructor(private db: D1Database) {}
 
@@ -21,34 +23,5 @@ export class UserService {
       .first<User>();
 
     return result ?? null;
-  }
-
-  // Creates a new user from Cloudflare Access auth data
-  async create(authUser: AuthUser): Promise<User> {
-    const now = Math.floor(Date.now() / 1000);
-
-    await this.db
-      .prepare('INSERT INTO users (id, email, created_at) VALUES (?, ?, ?)')
-      .bind(authUser.id, authUser.email, now)
-      .run();
-
-    const user: User = {
-      id: authUser.id,
-      email: authUser.email,
-      created_at: now,
-    };
-
-    return user;
-  }
-
-  // Finds existing user or creates a new one (upsert pattern)
-  async findOrCreate(authUser: AuthUser): Promise<User> {
-    const existing = await this.findById(authUser.id);
-
-    if (existing) {
-      return existing;
-    }
-
-    return this.create(authUser);
   }
 }

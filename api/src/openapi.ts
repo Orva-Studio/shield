@@ -18,19 +18,38 @@ const openAPISpec = {
         properties: {
           id: {
             type: 'string',
-            description: 'User ID (from Cloudflare Access)'
+            description: 'User ID'
+          },
+          name: {
+            type: 'string',
+            description: 'User display name'
           },
           email: {
             type: 'string',
             description: 'User email address',
             format: 'email'
           },
-          created_at: {
-            type: 'integer',
-            description: 'Unix timestamp when user was created'
+          emailVerified: {
+            type: 'boolean',
+            description: 'Whether the email has been verified'
+          },
+          image: {
+            type: 'string',
+            nullable: true,
+            description: 'User profile image URL'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'When the user was created'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'When the user was last updated'
           }
         },
-        required: ['id', 'email', 'created_at']
+        required: ['id', 'name', 'email', 'emailVerified', 'createdAt', 'updatedAt']
       },
       Tap: {
         type: 'object',
@@ -118,10 +137,11 @@ const openAPISpec = {
       }
     },
     securitySchemes: {
-      CloudflareAccess: {
-        type: 'http',
-        scheme: 'bearer',
-        description: 'Cloudflare Access JWT token. In production, include the token in the cf-access-jwt-assertion header. For local development with DEV_MODE=true, auth is bypassed automatically.'
+      BetterAuth: {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'better-auth.session_token',
+        description: 'Session cookie set by Better Auth after authentication. Use /api/auth/* endpoints for signup, signin, and signout.'
       }
     }
   },
@@ -156,12 +176,229 @@ const openAPISpec = {
         }
       }
     },
+    '/api/auth/sign-up/email': {
+      post: {
+        summary: 'Sign up with email',
+        description: 'Create a new account with email and password. A verification email will be sent.',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'Display name'
+                  },
+                  email: {
+                    type: 'string',
+                    format: 'email',
+                    description: 'Email address'
+                  },
+                  password: {
+                    type: 'string',
+                    description: 'Password (min 8 characters)'
+                  }
+                },
+                required: ['name', 'email', 'password']
+              },
+              example: {
+                name: 'John Doe',
+                email: 'john@example.com',
+                password: 'securepassword123'
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Account created successfully'
+          },
+          '400': {
+            description: 'Invalid input or email already exists'
+          }
+        }
+      }
+    },
+    '/api/auth/sign-in/email': {
+      post: {
+        summary: 'Sign in with email',
+        description: 'Authenticate with email and password. Sets session cookie on success.',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  email: {
+                    type: 'string',
+                    format: 'email'
+                  },
+                  password: {
+                    type: 'string'
+                  }
+                },
+                required: ['email', 'password']
+              },
+              example: {
+                email: 'john@example.com',
+                password: 'securepassword123'
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Signed in successfully'
+          },
+          '401': {
+            description: 'Invalid credentials'
+          }
+        }
+      }
+    },
+    '/api/auth/sign-in/social': {
+      post: {
+        summary: 'Sign in with social provider',
+        description: 'Initiate OAuth flow with a social provider (e.g., Google).',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  provider: {
+                    type: 'string',
+                    enum: ['google'],
+                    description: 'OAuth provider'
+                  },
+                  callbackURL: {
+                    type: 'string',
+                    description: 'URL to redirect after authentication'
+                  }
+                },
+                required: ['provider']
+              },
+              example: {
+                provider: 'google',
+                callbackURL: 'http://localhost:3000/auth/callback'
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Returns OAuth redirect URL'
+          }
+        }
+      }
+    },
+    '/api/auth/sign-out': {
+      post: {
+        summary: 'Sign out',
+        description: 'End the current session and clear the session cookie.',
+        tags: ['Authentication'],
+        security: [{ BetterAuth: [] }],
+        responses: {
+          '200': {
+            description: 'Signed out successfully'
+          }
+        }
+      }
+    },
+    '/api/auth/forgot-password': {
+      post: {
+        summary: 'Request password reset',
+        description: 'Send a password reset email to the specified address.',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  email: {
+                    type: 'string',
+                    format: 'email'
+                  },
+                  redirectTo: {
+                    type: 'string',
+                    description: 'URL to include in reset email'
+                  }
+                },
+                required: ['email']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Reset email sent (if account exists)'
+          }
+        }
+      }
+    },
+    '/api/auth/reset-password': {
+      post: {
+        summary: 'Reset password',
+        description: 'Set a new password using the reset token from email.',
+        tags: ['Authentication'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  token: {
+                    type: 'string',
+                    description: 'Reset token from email'
+                  },
+                  newPassword: {
+                    type: 'string',
+                    description: 'New password'
+                  }
+                },
+                required: ['token', 'newPassword']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Password reset successfully'
+          },
+          '400': {
+            description: 'Invalid or expired token'
+          }
+        }
+      }
+    },
+    '/api/auth/get-session': {
+      get: {
+        summary: 'Get current session',
+        description: 'Returns the current session and user if authenticated.',
+        tags: ['Authentication'],
+        responses: {
+          '200': {
+            description: 'Session data (null if not authenticated)'
+          }
+        }
+      }
+    },
     '/api/me': {
       get: {
         summary: 'Get current user',
-        description: 'Returns the authenticated user\'s profile information. Creates user record if it doesn\'t exist.',
+        description: 'Returns the authenticated user\'s profile information.',
         tags: ['Users'],
-        security: [{ CloudflareAccess: [] }],
+        security: [{ BetterAuth: [] }],
         responses: {
           '200': {
             description: 'User profile',
@@ -177,9 +414,13 @@ const openAPISpec = {
                 },
                 example: {
                   user: {
-                    id: 'dev-user-id',
-                    email: 'dev@example.com',
-                    created_at: 1704624000
+                    id: 'uuid-here',
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                    emailVerified: true,
+                    image: null,
+                    createdAt: '2024-01-07T12:00:00.000Z',
+                    updatedAt: '2024-01-07T12:00:00.000Z'
                   }
                 }
               }
@@ -193,7 +434,7 @@ const openAPISpec = {
                   $ref: '#/components/schemas/Error'
                 },
                 example: {
-                  error: 'Missing required CF Access JWT'
+                  error: 'Unauthorized'
                 }
               }
             }
@@ -206,7 +447,7 @@ const openAPISpec = {
         summary: 'Create tap',
         description: 'Records a new tap (resist or yield) for the authenticated user. Optionally categorize the temptation type.',
         tags: ['Taps'],
-        security: [{ CloudflareAccess: [] }],
+        security: [{ BetterAuth: [] }],
         requestBody: {
           required: true,
           content: {
@@ -257,7 +498,7 @@ const openAPISpec = {
                 example: {
                   tap: {
                     id: 1,
-                    user_id: 'dev-user-id',
+                    user_id: 'uuid-here',
                     type: 'resist',
                     category: 'social media',
                     timestamp: 1704624000,
@@ -296,7 +537,7 @@ const openAPISpec = {
         summary: 'List taps',
         description: 'Returns the authenticated user\'s tap history with optional date filtering and pagination.',
         tags: ['Taps'],
-        security: [{ CloudflareAccess: [] }],
+        security: [{ BetterAuth: [] }],
         parameters: [
           {
             name: 'from',
@@ -347,7 +588,7 @@ const openAPISpec = {
                   taps: [
                     {
                       id: 5,
-                      user_id: 'dev-user-id',
+                      user_id: 'uuid-here',
                       type: 'resist',
                       category: 'social media',
                       timestamp: 1704671000,
@@ -355,7 +596,7 @@ const openAPISpec = {
                     },
                     {
                       id: 4,
-                      user_id: 'dev-user-id',
+                      user_id: 'uuid-here',
                       type: 'yield',
                       category: 'sugar',
                       timestamp: 1704660000,
@@ -363,7 +604,7 @@ const openAPISpec = {
                     },
                     {
                       id: 3,
-                      user_id: 'dev-user-id',
+                      user_id: 'uuid-here',
                       type: 'resist',
                       category: 'procrastination',
                       timestamp: 1704640000,
@@ -392,7 +633,7 @@ const openAPISpec = {
         summary: 'Get tap statistics',
         description: 'Returns aggregated statistics for the authenticated user\'s taps including resists, yields, and current streak.',
         tags: ['Taps'],
-        security: [{ CloudflareAccess: [] }],
+        security: [{ BetterAuth: [] }],
         responses: {
           '200': {
             description: 'Tap statistics',
@@ -435,6 +676,10 @@ const openAPISpec = {
     {
       name: 'Health',
       description: 'Health check endpoints'
+    },
+    {
+      name: 'Authentication',
+      description: 'Better Auth authentication endpoints (signup, signin, signout, password reset)'
     },
     {
       name: 'Users',
