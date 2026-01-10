@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "app",
-    "slug": "app",
+    "name": "Tap Talk Pray",
+    "slug": "tap-talk-pray",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
