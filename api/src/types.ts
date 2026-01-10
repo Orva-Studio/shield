@@ -28,6 +28,7 @@ export interface AuthUser {
   image: string | null;
   createdAt: Date;
   updatedAt: Date;
+  onboardingCompleted: boolean;
 }
 
 // Session from Better Auth
@@ -54,6 +55,7 @@ export interface User {
   image: string | null;
   created_at: number;
   updated_at: number;
+  onboarding_completed: number;
 }
 
 export type TapType = 'resist' | 'yield';

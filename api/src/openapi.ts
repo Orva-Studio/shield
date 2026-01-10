@@ -47,9 +47,13 @@ const openAPISpec = {
             type: 'string',
             format: 'date-time',
             description: 'When the user was last updated'
+          },
+          onboardingCompleted: {
+            type: 'boolean',
+            description: 'Whether the user has completed onboarding'
           }
         },
-        required: ['id', 'name', 'email', 'emailVerified', 'createdAt', 'updatedAt']
+        required: ['id', 'name', 'email', 'emailVerified', 'createdAt', 'updatedAt', 'onboardingCompleted']
       },
       Tap: {
         type: 'object',
@@ -420,7 +424,8 @@ const openAPISpec = {
                     emailVerified: true,
                     image: null,
                     createdAt: '2024-01-07T12:00:00.000Z',
-                    updatedAt: '2024-01-07T12:00:00.000Z'
+                    updatedAt: '2024-01-07T12:00:00.000Z',
+                    onboardingCompleted: false
                   }
                 }
               }
@@ -435,6 +440,45 @@ const openAPISpec = {
                 },
                 example: {
                   error: 'Unauthorized'
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/me/onboarding': {
+      post: {
+        summary: 'Complete onboarding',
+        description: 'Marks the authenticated user as having completed onboarding.',
+        tags: ['Users'],
+        security: [{ BetterAuth: [] }],
+        requestBody: {
+          description: 'Empty request body'
+        },
+        responses: {
+          '200': {
+            description: 'Onboarding marked as complete',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: {
+                      type: 'boolean',
+                      example: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          '401': {
+            description: 'Unauthorized',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/Error'
                 }
               }
             }

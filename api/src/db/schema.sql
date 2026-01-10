@@ -67,3 +67,6 @@ CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
 CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_verifications_identifier ON verifications(identifier);
 CREATE INDEX IF NOT EXISTS idx_taps_user_timestamp ON taps(user_id, timestamp);
+
+-- Migration: Add onboarding_completed column to users table
+ALTER TABLE users ADD COLUMN onboarding_completed INTEGER NOT NULL DEFAULT 0;
