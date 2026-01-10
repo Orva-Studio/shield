@@ -8,8 +8,6 @@ compatibility_flags = ["nodejs_compat"]
 BETTER_AUTH_URL = "https://shieldtap-api.richardbray89.workers.dev"
 # Set to "true" for local development (DO NOT deploy with this enabled)
 DEV_MODE = "false"
-# Resend API key for email (set in Cloudflare dashboard for production)
-RESEND_API_KEY = ""
 
 # Secrets (use `wrangler secret put` for production):
 # - BETTER_AUTH_SECRET: 32+ character secret for encryption
