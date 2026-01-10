@@ -15,7 +15,8 @@ The app syncs across desktop and mobile, stores data in Cloudflare D1, and uses 
 - **Database**: Cloudflare D1 (SQLite-compatible)
 - **Authentication**: Cloudflare Access (JWT validation)
 - **Package Manager**: Bun
-- **Client**: React (future - web first, then mobile)
+- **Web**: React (future)
+- **Mobile**: React Native (iOS-first)
 
 ## Coding Preferences
 

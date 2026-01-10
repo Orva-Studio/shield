@@ -26,7 +26,7 @@ export function createAuth(env: AuthEnv) {
     // Email and password authentication
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: true,
+      requireEmailVerification: env.DEV_MODE !== 'true',
       sendResetPassword: async ({ user, url }) => {
         if (!env.RESEND_API_KEY) {
           console.warn('RESEND_API_KEY not configured, skipping password reset email');
@@ -63,7 +63,7 @@ export function createAuth(env: AuthEnv) {
           `,
         });
       },
-      sendOnSignUp: true,
+      sendOnSignUp: env.DEV_MODE !== 'true',
     },
 
     // Social providers
