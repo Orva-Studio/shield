@@ -1,3 +1,5 @@
+import { apiLog, apiResponse, error, log } from './logger';
+
 const defaultApiUrl = 'http://localhost:8787';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? defaultApiUrl;
@@ -48,6 +50,7 @@ export async function signUpEmail(params: {
   email: string;
   password: string;
 }): Promise<SignUpResponse> {
+  log('Attempting sign up', { email: params.email });
   return apiFetch('/api/auth/sign-up/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -59,6 +62,7 @@ export async function signInEmail(params: {
   email: string;
   password: string;
 }): Promise<SignInResponse> {
+  log('Attempting sign in', { email: params.email });
   return apiFetch('/api/auth/sign-in/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -67,16 +71,19 @@ export async function signInEmail(params: {
 }
 
 export async function signOut(): Promise<unknown> {
+  log('Attempting sign out');
   return apiFetch('/api/auth/sign-out', {
     method: 'POST',
   });
 }
 
 export async function getSession(): Promise<GetSessionResponse> {
+  log('Fetching session');
   return apiFetch('/api/auth/get-session');
 }
 
 export async function getMe(): Promise<MeResponse> {
+  log('Fetching user profile');
   return apiFetch('/api/me');
 }
 
@@ -84,6 +91,7 @@ export async function createTap(params: {
   type: 'resist' | 'yield';
   category?: string;
 }): Promise<CreateTapResponse> {
+  log('Creating tap', { type: params.type, category: params.category });
   return apiFetch('/api/taps', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -96,26 +104,50 @@ export async function listTaps(params?: { limit?: number }): Promise<ListTapsRes
   if (params?.limit) query.set('limit', String(params.limit));
 
   const url = query.size ? `/api/taps?${query.toString()}` : '/api/taps';
+  log('Fetching taps', params);
   return apiFetch(url);
 }
 
 async function apiFetch(path: string, init?: RequestInit) {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...init,
-    credentials: 'include',
-  });
+  const fullUrl = `${API_URL}${path}`;
+  const method = init?.method || 'GET';
+  const body = init?.body;
 
-  const text = await response.text();
-
-  if (!response.ok) {
-    throw new Error(text || `Request failed (${response.status})`);
-  }
-
-  if (!text) return {};
+  apiLog(method, fullUrl, body ? JSON.parse(body as string) : undefined);
 
   try {
-    return JSON.parse(text);
-  } catch {
-    return text;
+    const response = await fetch(fullUrl, {
+      ...init,
+      credentials: 'include',
+    });
+
+    const text = await response.text();
+
+    apiResponse(path, response.status, response.ok);
+
+    if (!response.ok) {
+      error(`API request failed: ${method} ${fullUrl}`, text, {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      throw new Error(text || `Request failed (${response.status})`);
+    }
+
+    if (!text) {
+      log(`API request successful: ${method} ${fullUrl} (empty response)`);
+      return {};
+    }
+
+    try {
+      const json = JSON.parse(text);
+      log(`API request successful: ${method} ${fullUrl}`, json);
+      return json;
+    } catch (parseError) {
+      error('Failed to parse JSON response', parseError, { text });
+      return text;
+    }
+  } catch (fetchError) {
+    error(`Network error: ${method} ${fullUrl}`, fetchError);
+    throw fetchError;
   }
 }

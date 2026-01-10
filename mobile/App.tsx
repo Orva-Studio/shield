@@ -23,6 +23,7 @@ import {
   type AuthUser,
   type Tap,
 } from './src/api';
+import { error, log, warn } from './src/logger';
 
 type AuthMode = 'sign-in' | 'sign-up';
 
@@ -42,6 +43,7 @@ export default function App() {
   }, [authMode]);
 
   useEffect(() => {
+    log('App bootstrapping');
     void bootstrap();
 
     async function bootstrap() {
@@ -59,36 +61,43 @@ export default function App() {
       const me = await getMe();
       setUser(me.user);
       await refreshTaps();
-    } catch {
+    } catch (err) {
+      error('Auth refresh failed - clearing user state', err);
       setUser(null);
       setTaps([]);
     }
   }
 
   async function refreshTaps() {
-    const response = await listTaps({ limit: 25 });
-    setTaps(response.taps);
+    try {
+      const response = await listTaps({ limit: 25 });
+      setTaps(response.taps);
+    } catch (err) {
+      error('Failed to refresh taps', err);
+      warn('Continuing with cached taps');
+    }
   }
 
   async function handleSignIn() {
     try {
       await signInEmail({ email, password });
       await refreshAuth();
-    } catch (error) {
-      showError(error);
+    } catch (err) {
+      showError(err, 'sign in');
     }
   }
 
   async function handleSignUp() {
     try {
       await signUpEmail({ name, email, password });
+      log('Sign up successful');
       Alert.alert(
         'Account created',
         'If email verification is enabled, check your email. Otherwise, try signing in now.'
       );
       setAuthMode('sign-in');
-    } catch (error) {
-      showError(error);
+    } catch (err) {
+      showError(err, 'sign up');
     }
   }
 
@@ -96,8 +105,8 @@ export default function App() {
     try {
       await signOut();
       await refreshAuth();
-    } catch (error) {
-      showError(error);
+    } catch (err) {
+      showError(err, 'sign out');
     }
   }
 
@@ -105,8 +114,8 @@ export default function App() {
     try {
       await createTap({ type, category: 'mobile' });
       await refreshTaps();
-    } catch (error) {
-      showError(error);
+    } catch (err) {
+      showError(err, `tap ${type}`);
     }
   }
 
@@ -125,7 +134,7 @@ export default function App() {
     return (
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Text style={styles.h1}>ShieldTap Mobile</Text>
+          <Text style={styles.h1}>Tap Talk Pray</Text>
           <Text style={styles.muted}>API: {API_URL}</Text>
 
           <View style={styles.card}>
@@ -212,9 +221,12 @@ export default function App() {
   );
 }
 
-function showError(error: unknown) {
-  const message = error instanceof Error ? error.message : String(error);
-  Alert.alert('Error', message);
+function showError(err: unknown, context?: string) {
+  const errorMessage = err instanceof Error ? err.message : String(err);
+  const contextStr = context ? ` (${context})` : '';
+  
+  error(`Error shown to user${contextStr}`, err);
+  Alert.alert('Error', errorMessage);
 }
 
 const styles = StyleSheet.create({
