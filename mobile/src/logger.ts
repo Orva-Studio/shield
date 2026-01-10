@@ -57,6 +57,7 @@ function logToConsole(data: LogData, ...args: unknown[]): void {
   }
 }
 
+// Extension point for Sentry or other error tracking services
 function captureLog(data: LogData, ...args: unknown[]): void {
   logToConsole(data, ...args);
 
@@ -64,29 +65,6 @@ function captureLog(data: LogData, ...args: unknown[]): void {
     return;
   }
 
-  // ============================================================================
-  // SENTRY INTEGRATION POINT
-  // ============================================================================
-  // To add Sentry integration:
-  //
-  // 1. Install: bunx expo install sentry-expo
-  // 2. Initialize in App.tsx: import * as Sentry from '@sentry/react-native';
-  // 3. Implement this function to send logs to Sentry:
-  //
-  //   if (data.error) {
-  //     Sentry.captureException(data.error, {
-  //       level: data.level,
-  //       extra: { ...data.extras, timestamp: data.timestamp, context: data.context },
-  //     });
-  //   } else {
-  //     Sentry.captureMessage(data.message, {
-  //       level: data.level,
-  //       extra: { ...data.extras, timestamp: data.timestamp, context: data.context },
-  //     });
-  //   }
-  //
-  // 4. Then remove the `if (__DEV__) return;` above to enable production logging
-  // ============================================================================
 }
 
 export function log(message: string, ...args: unknown[]): void {
