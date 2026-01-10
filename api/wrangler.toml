@@ -5,9 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 # Base URL for the auth server (update for production)
-BETTER_AUTH_URL = "http://localhost:8787"
+BETTER_AUTH_URL = "https://shieldtap-api.richardbray89.workers.dev"
 # Set to "true" for local development (DO NOT deploy with this enabled)
-DEV_MODE = "true"
+DEV_MODE = "false"
 # Google OAuth credentials (set in Cloudflare dashboard for production)
 GOOGLE_CLIENT_ID = ""
 GOOGLE_CLIENT_SECRET = ""

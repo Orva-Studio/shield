@@ -12,7 +12,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 app.use(
   '*',
   cors({
-    origin: (origin) => origin || '*',
+    origin: async (origin) => origin || '*',
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'],
     exposeHeaders: ['Content-Length'],
