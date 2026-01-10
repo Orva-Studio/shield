@@ -4,6 +4,7 @@ A minimalist, faith-centered application designed to help users resist temptatio
 
 ## Features
 
+- **Onboarding flow**: First-time user onboarding experience
 - **Single tap**: Records successful resistance to temptation
 - **Double tap**: Records yielding to temptation (honest tracking without judgment)
 - Cross-device sync (desktop and mobile)
@@ -90,6 +91,11 @@ curl http://localhost:8787/api/auth/get-session -b cookies.txt
 curl http://localhost:8787/api/me -b cookies.txt
 ```
 
+**Mark onboarding as complete (authenticated):**
+```bash
+curl -X POST http://localhost:8787/api/me/onboarding -b cookies.txt
+```
+
 **Create tap (authenticated):**
 ```bash
 curl -X POST http://localhost:8787/api/taps \
@@ -137,7 +143,8 @@ All authenticated endpoints (`/api/me`, `/api/taps`, etc.) require a valid sessi
 
 **Application**:
 - `GET /health` - Health check (no auth required)
-- `GET /api/me` - Get user profile (auth required)
+- `GET /api/me` - Get user profile (includes onboardingCompleted flag) (auth required)
+- `POST /api/me/onboarding` - Mark onboarding as complete (auth required)
 - `POST /api/taps` - Record a new tap (resist or yield) (auth required)
 - `GET /api/taps` - List tap history (auth required)
 - `GET /api/taps/stats` - Get statistics (auth required)
