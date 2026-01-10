@@ -41,7 +41,9 @@ project-root/
 │   │   ├── middleware/     # Auth, CORS, etc.
 │   │   ├── services/      # Business logic (classes)
 │   │   └── db/            # Database schema
-└── client/                # Frontend (future - React)
+├── mobile/                # Mobile app (React Native)
+├── web/                   # Web app (future)
+└── marketing/             # Marketing site (future)
 ```
 
 ### Separation of Concerns
