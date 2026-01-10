@@ -20,4 +20,4 @@ RESEND_API_KEY = ""
 [[d1_databases]]
 binding = "DB"
 database_name = "shieldtap-db"
-database_id = "local-dev-db"
+database_id = "d256ca3a-5432-49c8-a731-b23ad5d00850"
