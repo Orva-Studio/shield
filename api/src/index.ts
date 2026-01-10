@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { createAuthMiddleware, requireAuth } from './middleware/auth.ts';
 import { createAuth, type AuthEnv } from './lib/auth.ts';
 import { TapService } from './services/TapService.ts';
+import { UserService } from './services/UserService.ts';
 import type { Bindings, Variables, CreateTapInput } from './types.ts';
 import openAPISpec from './openapi.ts';
 
@@ -39,6 +40,16 @@ app.use('/api/*', createAuthMiddleware());
 app.get('/api/me', requireAuth(), async (c) => {
   const user = c.get('user');
   return c.json({ user });
+});
+
+// Marks onboarding as complete for the authenticated user
+app.post('/api/me/onboarding', requireAuth(), async (c) => {
+  const user = c.get('user')!;
+  const userService = new UserService(c.env.DB);
+  
+  await userService.markOnboardingComplete(user.id);
+  
+  return c.json({ success: true });
 });
 
 // Records a new tap (resist or yield) for the authenticated user
