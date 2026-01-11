@@ -95,6 +95,33 @@ bun add package-name
 bun run script-name
 ```
 
+### Variable Naming
+
+**CRITICAL**: Use descriptive variable names that clearly indicate what the value represents.
+
+- Include units when dealing with time-related values
+- Use specific names that describe the data type and purpose
+- Avoid generic names that don't provide context
+
+```typescript
+// Good - descriptive names with units
+const currentUnixTimestamp = Math.floor(Date.now() / 1000);
+const currentDateTime = new Date();
+const userResponseData = await response.json();
+const tapCountResult = await db.prepare('SELECT COUNT(*) as count FROM taps').first();
+
+// Good - descriptive names without units when context is clear
+const userId = session.user.id;
+const userName = user.name;
+const tapType = 'resist';
+
+// Bad - non-descriptive or generic
+const now = Math.floor(Date.now() / 1000);
+const now = new Date();
+const data = await response.json();
+const result = await db.prepare('SELECT COUNT(*) as count FROM taps').first();
+```
+
 ### Type-Only Imports
 
 **RECOMMENDED**: Use `import type` for type-only imports.
@@ -379,7 +406,11 @@ database_id = "local-dev-db"
 
 ```typescript
 export class UserService {
-  constructor(private db: D1Database) {}
+  private db: D1Database;
+
+  constructor(db: D1Database) {
+    this.db = db;
+  }
 
   async findById(id: string): Promise<User | null> {
     const result = await this.db
@@ -392,7 +423,7 @@ export class UserService {
 }
 ```
 
-**CRITICAL**: Use `private` parameter shorthand in constructor.
+**CRITICAL**: Declare properties explicitly in the class and assign them in the constructor body.
 
 ### Async Methods
 

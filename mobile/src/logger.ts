@@ -16,13 +16,13 @@ interface LogOptions {
 }
 
 function getTimestamp(): string {
-  const now = new Date();
+  const currentDateTime = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
 
-  const hours = pad(now.getHours());
-  const minutes = pad(now.getMinutes());
-  const seconds = pad(now.getSeconds());
-  const millis = now.getMilliseconds().toString().padStart(3, '0');
+  const hours = pad(currentDateTime.getHours());
+  const minutes = pad(currentDateTime.getMinutes());
+  const seconds = pad(currentDateTime.getSeconds());
+  const millis = currentDateTime.getMilliseconds().toString().padStart(3, '0');
 
   return `${hours}:${minutes}:${seconds}.${millis}`;
 }

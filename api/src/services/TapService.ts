@@ -1,18 +1,22 @@
 import type { Tap, CreateTapInput, TapStats, TapListQuery } from '../types.ts';
 
 export class TapService {
-  constructor(private db: D1Database) {}
+  private db: D1Database;
+
+  constructor(db: D1Database) {
+    this.db = db;
+  }
 
   // Creates a new tap record for a user
   async create(userId: string, input: CreateTapInput): Promise<Tap> {
     const timestamp = input.timestamp ?? Math.floor(Date.now() / 1000);
-    const now = Math.floor(Date.now() / 1000);
+    const currentUnixTimestamp = Math.floor(Date.now() / 1000);
 
     const result = await this.db
       .prepare(
         'INSERT INTO taps (user_id, type, category, timestamp, created_at) VALUES (?, ?, ?, ?, ?) RETURNING *'
       )
-      .bind(userId, input.type, input.category ?? null, timestamp, now)
+      .bind(userId, input.type, input.category ?? null, timestamp, currentUnixTimestamp)
       .first<Tap>();
 
     if (!result) {
