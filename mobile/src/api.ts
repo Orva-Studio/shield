@@ -80,6 +80,7 @@ export async function signOut(): Promise<unknown> {
   log('Attempting sign out');
   return apiFetch('/api/auth/sign-out', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
   });
 }
 
