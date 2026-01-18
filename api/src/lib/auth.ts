@@ -22,6 +22,7 @@ export function createAuth(env: AuthEnv) {
     },
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
+    trustedOrigins: ['http://localhost:8081', 'http://localhost:8787'],
 
     // Email and password authentication
     emailAndPassword: {
