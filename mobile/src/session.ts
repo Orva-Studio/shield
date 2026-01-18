@@ -21,15 +21,9 @@ export function extractSessionToken(response: Response): string | null {
     return null;
   }
 
-  const cookies = setCookieHeader.split(', ');
-  
-  for (const cookie of cookies) {
-    if (cookie.startsWith('__Secure-better-auth.session_token=')) {
-      const tokenMatch = cookie.match(/__Secure-better-auth\.session_token=([^;]+)/);
-      if (tokenMatch) {
-        return decodeURIComponent(tokenMatch[1]);
-      }
-    }
+  const cookieMatch = setCookieHeader.match(/__Secure-better-auth\.session_token=([^;]+)/);
+  if (cookieMatch && cookieMatch[1]) {
+    return decodeURIComponent(cookieMatch[1]);
   }
 
   return null;
