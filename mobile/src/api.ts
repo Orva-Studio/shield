@@ -1,4 +1,10 @@
 import { apiLog, apiResponse, error, log } from './logger';
+import {
+  saveSessionToken,
+  getSessionToken,
+  clearSessionToken,
+  extractSessionToken,
+} from './session';
 
 const defaultApiUrl = 'http://localhost:8787';
 
@@ -116,8 +122,16 @@ async function apiFetch(path: string, init?: RequestInit) {
   apiLog(method, fullUrl, body ? JSON.parse(body as string) : undefined);
 
   try {
+    const token = await getSessionToken();
+    const headers = new Headers(init?.headers);
+    
+    if (token) {
+      headers.set('Cookie', `__Secure-better-auth.session_token=${token}`);
+    }
+
     const response = await fetch(fullUrl, {
       ...init,
+      headers,
       credentials: 'include',
     });
 
@@ -141,6 +155,22 @@ async function apiFetch(path: string, init?: RequestInit) {
     try {
       const json = JSON.parse(text);
       log(`API request successful: ${method} ${fullUrl}`, json);
+
+      if (response.ok) {
+        if (path.includes('/sign-in/') || path.includes('/sign-up/')) {
+          const sessionToken = extractSessionToken(response);
+          if (sessionToken) {
+            await saveSessionToken(sessionToken);
+            log('Session token saved');
+          }
+        }
+
+        if (path.includes('/sign-out')) {
+          await clearSessionToken();
+          log('Session token cleared');
+        }
+      }
+
       return json;
     } catch (parseError) {
       error('Failed to parse JSON response', parseError, { text });
