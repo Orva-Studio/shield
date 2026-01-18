@@ -37,3 +37,6 @@ coverage/
 
 # Beads (local AI context)
 .beads/
+
+# Internal notes
+NOTES.md
