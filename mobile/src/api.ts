@@ -9,7 +9,7 @@ import {
 const defaultApiUrl = 'http://localhost:8787';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? defaultApiUrl;
-export const APP_ORIGIN = 'app://shieldtap';
+export const APP_ORIGIN = process.env.EXPO_PUBLIC_APP_ORIGIN ?? 'exp://localhost';
 
 export interface AuthUser {
   id: string;
