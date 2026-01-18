@@ -81,6 +81,7 @@ export async function signOut(): Promise<unknown> {
   return apiFetch('/api/auth/sign-out', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({}),
   });
 }
 
@@ -128,6 +129,10 @@ async function apiFetch(path: string, init?: RequestInit) {
     
     if (token) {
       headers.set('Cookie', `__Secure-better-auth.session_token=${token}`);
+    }
+
+    if (path.includes('/api/auth/')) {
+      headers.set('Origin', API_URL);
     }
 
     const response = await fetch(fullUrl, {
