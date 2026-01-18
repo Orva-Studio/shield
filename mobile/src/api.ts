@@ -146,6 +146,13 @@ async function apiFetch(path: string, init?: RequestInit) {
 
     apiResponse(path, response.status, response.ok);
 
+    if (!response.ok && (response.status === 401 || response.status === 403)) {
+      if (path.includes('/sign-out')) {
+        await clearSessionToken();
+        log('Session token cleared on auth failure');
+      }
+    }
+
     if (!response.ok) {
       error(`API request failed: ${method} ${fullUrl}`, text, {
         status: response.status,
