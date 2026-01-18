@@ -9,6 +9,7 @@ import {
 const defaultApiUrl = 'http://localhost:8787';
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? defaultApiUrl;
+export const APP_ORIGIN = 'http://localhost:8081';
 
 export interface AuthUser {
   id: string;
@@ -132,7 +133,7 @@ async function apiFetch(path: string, init?: RequestInit) {
     }
 
     if (path.includes('/api/auth/')) {
-      headers.set('Origin', API_URL);
+      headers.set('Origin', APP_ORIGIN);
     }
 
     const response = await fetch(fullUrl, {
