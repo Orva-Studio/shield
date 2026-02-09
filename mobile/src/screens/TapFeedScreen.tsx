@@ -26,7 +26,7 @@ export function TapFeedScreen({ navigation, onTap }: TapFeedScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>ShieldTap</Text>
+        <Text style={styles.title}>Tap.Talk.Pray</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Stats')}>
           <BarChart2 stroke={theme.colors.text} strokeWidth={1.5} width={22} height={22} />
         </TouchableOpacity>

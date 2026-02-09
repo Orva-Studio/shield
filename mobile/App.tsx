@@ -54,7 +54,7 @@ export default function App() {
       await signInEmail({ email, password });
       await refreshAuth();
     } catch (err) {
-      showError(err, 'sign in');
+      error('Sign in failed', err);
       throw err;
     }
   }
@@ -63,12 +63,8 @@ export default function App() {
     try {
       await signUpEmail({ name, email, password });
       log('Sign up successful');
-      Alert.alert(
-        'Account created',
-        'If email verification is enabled, check your email. Otherwise, try signing in now.'
-      );
     } catch (err) {
-      showError(err, 'sign up');
+      error('Sign up failed', err);
       throw err;
     }
   }

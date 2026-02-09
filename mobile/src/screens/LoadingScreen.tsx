@@ -4,7 +4,7 @@ import { theme } from '../theme';
 export function LoadingScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.logo}>ShieldTap</Text>
+      <Text style={styles.logo}>Tap.Talk.Pray</Text>
       <ActivityIndicator size="small" color={theme.colors.accentGold} style={styles.spinner} />
     </View>
   );
