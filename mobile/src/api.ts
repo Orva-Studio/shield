@@ -1,4 +1,5 @@
 import { apiLog, apiResponse, error, log } from './logger';
+import { Platform } from 'react-native';
 import {
   saveSessionToken,
   getSessionToken,
@@ -8,7 +9,9 @@ import {
 
 const defaultApiUrl = 'http://localhost:8787';
 
-export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? defaultApiUrl;
+export const API_URL = Platform.OS === 'web'
+  ? defaultApiUrl
+  : (process.env.EXPO_PUBLIC_API_URL ?? defaultApiUrl);
 export const APP_ORIGIN = process.env.EXPO_PUBLIC_APP_ORIGIN ?? 'exp://localhost';
 
 export interface AuthUser {
@@ -149,7 +152,7 @@ async function apiFetch(path: string, init?: RequestInit) {
       headers.set('Cookie', `__Secure-better-auth.session_token=${token}`);
     }
 
-    if (path.includes('/api/auth/')) {
+    if (Platform.OS !== 'web' && path.includes('/api/auth/')) {
       headers.set('Origin', APP_ORIGIN);
     }
 
@@ -175,7 +178,16 @@ async function apiFetch(path: string, init?: RequestInit) {
         status: response.status,
         statusText: response.statusText,
       });
-      throw new Error(text || `Request failed (${response.status})`);
+      let message = `Request failed (${response.status})`;
+      if (text) {
+        try {
+          const parsed = JSON.parse(text);
+          message = parsed.message || message;
+        } catch {
+          message = text;
+        }
+      }
+      throw new Error(message);
     }
 
     if (!text) {
@@ -189,7 +201,8 @@ async function apiFetch(path: string, init?: RequestInit) {
 
       if (response.ok) {
         if (path.includes('/sign-in/') || path.includes('/sign-up/')) {
-          const sessionToken = extractSessionToken(response);
+          // Prefer full cookie token (has signature), fall back to JSON body token on web
+          const sessionToken = extractSessionToken(response) || json.token;
           if (sessionToken) {
             await saveSessionToken(sessionToken);
             log('Session token saved');

@@ -15,9 +15,13 @@ export function AuthScreen({ onSignIn, onSignUp, setUser }: AuthScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   async function handleSubmit() {
     if (loading) return;
+    setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
@@ -25,20 +29,43 @@ export function AuthScreen({ onSignIn, onSignUp, setUser }: AuthScreenProps) {
         await onSignIn(email, password);
       } else {
         await onSignUp(name, email, password);
+        setSuccess('Account created! Sign in to continue.');
         setMode('sign-in');
       }
-    } catch (error) {
-      console.error('Auth error:', error);
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : String(err);
+      setError(friendlyError(raw));
     } finally {
       setLoading(false);
     }
+  }
+
+  function friendlyError(message: string): string {
+    const lower = message.toLowerCase();
+    if (lower.includes('invalid') || lower.includes('credentials') || lower.includes('unauthorized') || lower.includes('401')) {
+      return 'Invalid email or password';
+    }
+    if (lower.includes('network') || lower.includes('fetch')) {
+      return 'Unable to connect. Please check your internet connection.';
+    }
+    if (lower.includes('not found') || lower.includes('404')) {
+      return 'Account not found';
+    }
+    if (lower.includes('already exists') || lower.includes('conflict') || lower.includes('409')) {
+      return 'An account with this email already exists';
+    }
+    // Hide technical errors
+    if (lower.includes('is not a function') || lower.includes('undefined') || lower.includes('null')) {
+      return 'Something went wrong. Please try again.';
+    }
+    return message;
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.heroSection}>
-          <Text style={styles.logo}>ShieldTap</Text>
+          <Text style={styles.logo}>Tap.Talk.Pray</Text>
           <Text style={styles.tagline}>spiritual discipline, daily</Text>
         </View>
 
@@ -76,6 +103,9 @@ export function AuthScreen({ onSignIn, onSignUp, setUser }: AuthScreenProps) {
             secureTextEntry
             onChangeText={setPassword}
           />
+
+          {success !== '' && <Text style={styles.success}>{success}</Text>}
+          {error !== '' && <Text style={styles.error}>{error}</Text>}
 
           <TouchableOpacity
             style={styles.button}
@@ -149,6 +179,16 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     color: theme.colors.text,
     fontSize: theme.fontSize.body,
+  },
+  success: {
+    color: theme.colors.accentGold,
+    fontSize: theme.fontSize.small,
+    textAlign: 'center',
+  },
+  error: {
+    color: theme.colors.danger,
+    fontSize: theme.fontSize.small,
+    textAlign: 'center',
   },
   button: {
     backgroundColor: theme.colors.accentGold,
