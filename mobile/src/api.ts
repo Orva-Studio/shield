@@ -18,11 +18,19 @@ export interface AuthUser {
 }
 
 export interface Tap {
-  id: string;
+  id: number;
   user_id: string;
   type: 'resist' | 'yield';
   category?: string | null;
   timestamp: number;
+  created_at: number;
+}
+
+export interface TapStats {
+  total_resists: number;
+  total_yields: number;
+  current_streak: number;
+  last_tap_date: string | null;
 }
 
 interface GetSessionResponse {
@@ -115,6 +123,15 @@ export async function listTaps(params?: { limit?: number }): Promise<ListTapsRes
   const url = query.size ? `/api/taps?${query.toString()}` : '/api/taps';
   log('Fetching taps', params);
   return apiFetch(url);
+}
+
+interface GetStatsResponse {
+  stats: TapStats;
+}
+
+export async function getStats(): Promise<GetStatsResponse> {
+  log('Fetching tap stats');
+  return apiFetch('/api/taps/stats');
 }
 
 async function apiFetch(path: string, init?: RequestInit) {
