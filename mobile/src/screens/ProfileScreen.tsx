@@ -1,5 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { User } from 'react-native-feather';
 import { theme } from '../theme';
 import type { AuthUser } from '../api';
 
@@ -25,7 +25,7 @@ export function ProfileScreen({ user, onSignOut }: ProfileScreenProps) {
 
       <View style={styles.content}>
         <View style={styles.avatar}>
-          <Ionicons name="person" size={64} color={theme.colors.textSecondary} />
+          <User stroke={theme.colors.textSecondary} strokeWidth={1.5} width={48} height={48} />
         </View>
 
         {user?.name && <Text style={styles.name}>{user.name}</Text>}
@@ -35,7 +35,7 @@ export function ProfileScreen({ user, onSignOut }: ProfileScreenProps) {
           style={styles.signOutButton}
           onPress={handleSignOut}
         >
-          <Text style={styles.signOutText}>Sign Out</Text>
+          <Text style={styles.signOutText}>SIGN OUT</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -49,48 +49,52 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: theme.fontSize.h1,
     color: theme.colors.text,
   },
   content: {
     flex: 1,
     alignItems: 'center',
-    paddingTop: theme.spacing.xl,
-    gap: theme.spacing.md,
+    paddingTop: theme.spacing.xxl,
+    gap: theme.spacing.sm,
   },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
     backgroundColor: theme.colors.card,
+    borderWidth: 0.5,
+    borderColor: theme.colors.border,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: theme.spacing.md,
   },
   name: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: 28,
     color: theme.colors.text,
   },
   email: {
-    fontSize: theme.fontSize.body,
+    fontSize: theme.fontSize.small,
     color: theme.colors.textSecondary,
   },
   signOutButton: {
-    backgroundColor: theme.colors.danger,
+    borderWidth: 0.5,
+    borderColor: theme.colors.danger,
     borderRadius: theme.borderRadius.md,
-    padding: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
     paddingHorizontal: theme.spacing.xl,
-    marginTop: theme.spacing.xl * 2,
+    marginTop: theme.spacing.xxl,
   },
   signOutText: {
-    color: theme.colors.text,
-    fontSize: theme.fontSize.body,
-    fontWeight: '600',
+    color: theme.colors.danger,
+    fontSize: theme.fontSize.caption,
+    letterSpacing: 2,
+    fontWeight: '500',
   },
 });

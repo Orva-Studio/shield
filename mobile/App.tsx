@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { Alert } from 'react-native';
+import { useFonts, DMSerifDisplay_400Regular } from '@expo-google-fonts/dm-serif-display';
 import {
   createTap,
   getMe,
@@ -19,6 +20,10 @@ import { AppNavigator } from './src/navigation';
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<AuthUser | null>(null);
+
+  const [fontsLoaded] = useFonts({
+    DMSerifDisplay_400Regular,
+  });
 
   useEffect(() => {
     log('App bootstrapping');
@@ -87,7 +92,7 @@ export default function App() {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || !fontsLoaded) {
     return <LoadingScreen />;
   }
 

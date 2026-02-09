@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../theme';
 import type { AuthUser } from '../api';
 
@@ -38,10 +37,15 @@ export function AuthScreen({ onSignIn, onSignUp, setUser }: AuthScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.logo}>ShieldTap</Text>
+        <View style={styles.heroSection}>
+          <Text style={styles.logo}>ShieldTap</Text>
+          <Text style={styles.tagline}>spiritual discipline, daily</Text>
+        </View>
 
-        <View style={styles.card}>
-          <Text style={styles.title}>{mode === 'sign-in' ? 'Sign In' : 'Create Account'}</Text>
+        <View style={styles.form}>
+          <Text style={styles.title}>
+            {mode === 'sign-in' ? 'Welcome Back' : 'Create Account'}
+          </Text>
 
           {mode === 'sign-up' && (
             <TextInput
@@ -110,54 +114,65 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: theme.spacing.lg,
   },
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.xxl,
+  },
   logo: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: 44,
     color: theme.colors.text,
     textAlign: 'center',
-    marginBottom: theme.spacing.xl,
   },
-  card: {
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.lg,
+  tagline: {
+    fontFamily: theme.fonts.serif,
+    fontSize: theme.fontSize.small,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.sm,
+    letterSpacing: 2,
+    textTransform: 'lowercase',
+  },
+  form: {
     gap: theme.spacing.md,
   },
   title: {
+    fontFamily: theme.fonts.serif,
     fontSize: theme.fontSize.h2,
-    fontWeight: '600',
     color: theme.colors.text,
     marginBottom: theme.spacing.sm,
   },
   input: {
-    backgroundColor: theme.colors.border,
+    backgroundColor: theme.colors.card,
     borderRadius: theme.borderRadius.md,
+    borderWidth: 0.5,
+    borderColor: theme.colors.border,
     padding: theme.spacing.md,
     color: theme.colors.text,
     fontSize: theme.fontSize.body,
   },
   button: {
-    backgroundColor: theme.colors.accentBlue,
+    backgroundColor: theme.colors.accentGold,
     borderRadius: theme.borderRadius.md,
     padding: theme.spacing.md,
     alignItems: 'center',
     marginTop: theme.spacing.sm,
   },
   buttonText: {
-    color: theme.colors.text,
+    color: theme.colors.background,
     fontSize: theme.fontSize.body,
     fontWeight: '600',
+    letterSpacing: 0.5,
   },
   toggle: {
     alignItems: 'center',
-    marginTop: theme.spacing.sm,
+    marginTop: theme.spacing.md,
   },
   toggleText: {
     color: theme.colors.textSecondary,
-    fontSize: theme.fontSize.body,
+    fontSize: theme.fontSize.small,
   },
   toggleHighlight: {
-    color: theme.colors.accentBlue,
-    fontWeight: '600',
+    color: theme.colors.text,
+    fontWeight: '500',
   },
 });

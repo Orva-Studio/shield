@@ -4,8 +4,8 @@ import { theme } from '../theme';
 export function LoadingScreen() {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#FFFFFF" />
-      <Text style={styles.text}>Connecting...</Text>
+      <Text style={styles.logo}>ShieldTap</Text>
+      <ActivityIndicator size="small" color={theme.colors.accentGold} style={styles.spinner} />
     </View>
   );
 }
@@ -16,10 +16,13 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: theme.spacing.md,
   },
-  text: {
+  logo: {
+    fontFamily: theme.fonts.serif,
+    fontSize: 36,
     color: theme.colors.text,
-    fontSize: theme.fontSize.body,
+  },
+  spinner: {
+    marginTop: theme.spacing.lg,
   },
 });

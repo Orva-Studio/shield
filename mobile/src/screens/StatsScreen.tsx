@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { ChevronLeft } from 'react-native-feather';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { theme } from '../theme';
 import { getStats, type TapStats } from '../api';
@@ -28,18 +28,24 @@ export function StatsScreen({ navigation }: StatsScreenProps) {
     }
   }
 
+  function renderHeader() {
+    return (
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <ChevronLeft stroke={theme.colors.text} strokeWidth={1.5} width={24} height={24} />
+        </TouchableOpacity>
+        <Text style={styles.title}>Stats</Text>
+        <View style={styles.placeholder} />
+      </View>
+    );
+  }
+
   if (loading) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.title}>Stats</Text>
-          <View style={styles.placeholder} />
-        </View>
+        {renderHeader()}
         <View style={styles.content}>
-          <Text style={styles.loadingText}>Loading stats...</Text>
+          <Text style={styles.loadingText}>Loading...</Text>
         </View>
       </View>
     );
@@ -48,15 +54,9 @@ export function StatsScreen({ navigation }: StatsScreenProps) {
   if (!stats) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.title}>Stats</Text>
-          <View style={styles.placeholder} />
-        </View>
+        {renderHeader()}
         <View style={styles.content}>
-          <Text style={styles.emptyText}>No stats available</Text>
+          <Text style={styles.emptyText}>No stats yet</Text>
         </View>
       </View>
     );
@@ -67,34 +67,28 @@ export function StatsScreen({ navigation }: StatsScreenProps) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Stats</Text>
-        <View style={styles.placeholder} />
-      </View>
+      {renderHeader()}
 
       <View style={styles.content}>
         <Animated.View entering={FadeInDown.delay(0)} style={styles.totalContainer}>
           <Text style={styles.totalNumber}>{total}</Text>
-          <Text style={styles.totalLabel}>Total Taps</Text>
+          <Text style={styles.totalLabel}>TOTAL TAPS</Text>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(150)} style={styles.statRow}>
           <View style={[styles.statCard, styles.resistCard]}>
             <Text style={styles.statNumber}>{stats.total_resists}</Text>
-            <Text style={styles.statLabel}>Resist</Text>
+            <Text style={styles.statLabel}>RESIST</Text>
           </View>
           <View style={[styles.statCard, styles.yieldCard]}>
             <Text style={styles.statNumber}>{stats.total_yields}</Text>
-            <Text style={styles.statLabel}>Yield</Text>
+            <Text style={styles.statLabel}>YIELD</Text>
           </View>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(300)} style={styles.ratioCard}>
           <Text style={styles.ratioNumber}>{resistRatio.toFixed(1)}%</Text>
-          <Text style={styles.ratioLabel}>Resist Ratio</Text>
+          <Text style={styles.ratioLabel}>RESIST RATIO</Text>
         </Animated.View>
       </View>
     </View>
@@ -110,13 +104,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
   },
   title: {
+    fontFamily: theme.fonts.serif,
     fontSize: theme.fontSize.h2,
-    fontWeight: '700',
     color: theme.colors.text,
   },
   placeholder: {
@@ -133,14 +127,15 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.xl,
   },
   totalNumber: {
-    fontSize: 64,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: 72,
     color: theme.colors.text,
   },
   totalLabel: {
-    fontSize: theme.fontSize.body,
+    fontSize: theme.fontSize.caption,
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.sm,
+    letterSpacing: 2,
   },
   statRow: {
     flexDirection: 'row',
@@ -153,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.lg,
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 0.5,
   },
   resistCard: {
     borderColor: theme.colors.accentGold,
@@ -162,14 +157,15 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.accentRose,
   },
   statNumber: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: 40,
     color: theme.colors.text,
   },
   statLabel: {
-    fontSize: theme.fontSize.body,
+    fontSize: theme.fontSize.caption,
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.sm,
+    letterSpacing: 2,
   },
   ratioCard: {
     backgroundColor: theme.colors.card,
@@ -179,21 +175,24 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   ratioNumber: {
-    fontSize: 48,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: 56,
     color: theme.colors.text,
   },
   ratioLabel: {
-    fontSize: theme.fontSize.body,
+    fontSize: theme.fontSize.caption,
     color: theme.colors.textSecondary,
     marginTop: theme.spacing.sm,
+    letterSpacing: 2,
   },
   loadingText: {
-    color: theme.colors.text,
+    fontFamily: theme.fonts.serif,
+    color: theme.colors.textSecondary,
     fontSize: theme.fontSize.body,
   },
   emptyText: {
-    color: theme.colors.text,
+    fontFamily: theme.fonts.serif,
+    color: theme.colors.textSecondary,
     fontSize: theme.fontSize.body,
   },
 });

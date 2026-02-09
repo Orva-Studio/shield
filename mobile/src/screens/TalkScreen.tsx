@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MessageCircle } from 'react-native-feather';
 import { theme } from '../theme';
 
 export function TalkScreen() {
@@ -10,9 +10,9 @@ export function TalkScreen() {
       </View>
 
       <View style={styles.content}>
-        <Ionicons name="chatbubbles" size={64} color={theme.colors.textSecondary} />
+        <MessageCircle stroke={theme.colors.textSecondary} strokeWidth={1} width={48} height={48} />
         <Text style={styles.comingSoon}>Coming Soon</Text>
-        <Text style={styles.subtitle}>Connect with your community</Text>
+        <Text style={styles.subtitle}>connect with your community</Text>
       </View>
     </View>
   );
@@ -25,12 +25,12 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: theme.fontSize.h1,
     color: theme.colors.text,
   },
   content: {
@@ -40,12 +40,13 @@ const styles = StyleSheet.create({
     gap: theme.spacing.md,
   },
   comingSoon: {
+    fontFamily: theme.fonts.serif,
     fontSize: theme.fontSize.h2,
-    fontWeight: '600',
     color: theme.colors.text,
   },
   subtitle: {
-    fontSize: theme.fontSize.body,
+    fontSize: theme.fontSize.small,
     color: theme.colors.textSecondary,
+    letterSpacing: 1,
   },
 });

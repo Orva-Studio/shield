@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { BarChart2 } from 'react-native-feather';
 import { theme } from '../theme';
 import { TapCircle } from '../components/TapCircle';
-import type { Tap } from '../api';
 
 interface TapFeedScreenProps {
   navigation: any;
@@ -29,12 +28,16 @@ export function TapFeedScreen({ navigation, onTap }: TapFeedScreenProps) {
       <View style={styles.header}>
         <Text style={styles.title}>ShieldTap</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Stats')}>
-          <Ionicons name="bar-chart" size={24} color={theme.colors.text} />
+          <BarChart2 stroke={theme.colors.text} strokeWidth={1.5} width={22} height={22} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
         <TapCircle onTap={handleTap} loading={isRecording} />
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.hint}>double tap to yield</Text>
       </View>
     </View>
   );
@@ -50,17 +53,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.sm,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontFamily: theme.fonts.serif,
+    fontSize: theme.fontSize.h1,
     color: theme.colors.text,
   },
   content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  footer: {
+    alignItems: 'center',
+    paddingBottom: theme.spacing.xl,
+  },
+  hint: {
+    fontFamily: theme.fonts.serif,
+    fontSize: theme.fontSize.small,
+    color: theme.colors.textSecondary,
+    letterSpacing: 1,
   },
 });

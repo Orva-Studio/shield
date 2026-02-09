@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
+import { Target, MessageCircle, Heart, User } from 'react-native-feather';
+import { View, Text, StyleSheet } from 'react-native';
 import { theme } from './theme';
 import { TapFeedScreen } from './screens/TapFeedScreen';
 import { StatsScreen } from './screens/StatsScreen';
@@ -29,31 +30,44 @@ function TapStack({ onTap }: { onTap: (type: 'resist' | 'yield') => Promise<void
   );
 }
 
+function TabLabel({ label, focused }: { label: string; focused: boolean }) {
+  return (
+    <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>
+      {label.toUpperCase()}
+    </Text>
+  );
+}
+
 export function AppNavigator({ user, onTap, onSignOut }: AppNavigatorProps) {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName: keyof typeof Ionicons.glyphMap = 'home';
+        tabBarIcon: ({ focused, color }) => {
+          const strokeWidth = 1.5;
+          const size = 22;
 
           if (route.name === 'Tap') {
-            iconName = focused ? 'hand-right' : 'hand-right-outline';
+            return <Target stroke={color} strokeWidth={strokeWidth} width={size} height={size} />;
           } else if (route.name === 'Talk') {
-            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+            return <MessageCircle stroke={color} strokeWidth={strokeWidth} width={size} height={size} />;
           } else if (route.name === 'Pray') {
-            iconName = focused ? 'heart' : 'heart-outline';
+            return <Heart stroke={color} strokeWidth={strokeWidth} width={size} height={size} />;
           } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
+            return <User stroke={color} strokeWidth={strokeWidth} width={size} height={size} />;
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          return null;
         },
-        tabBarActiveTintColor: theme.colors.accentBlue,
+        tabBarLabel: ({ focused }) => (
+          <TabLabel label={route.name} focused={focused} />
+        ),
+        tabBarActiveTintColor: theme.colors.text,
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: theme.colors.card,
+          backgroundColor: theme.colors.background,
           borderTopColor: theme.colors.border,
-          height: 60,
+          borderTopWidth: 0.5,
+          height: 64,
           paddingBottom: 8,
           paddingTop: 8,
         },
@@ -71,3 +85,16 @@ export function AppNavigator({ user, onTap, onSignOut }: AppNavigatorProps) {
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  tabLabel: {
+    fontFamily: theme.fonts.serif,
+    fontSize: theme.fontSize.caption,
+    letterSpacing: 1.5,
+    color: theme.colors.textSecondary,
+    marginTop: 2,
+  },
+  tabLabelActive: {
+    color: theme.colors.text,
+  },
+});
