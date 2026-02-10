@@ -106,6 +106,11 @@ class TapService {
 
 For detailed repeatable patterns and workflows, see [CODE_GUIDELINES.md](./CODE_GUIDELINES.md).
 
+### Git Workflow
+
+- After completing changes, automatically commit and push to the current branch
+- Never commit or push directly to `main` without asking the user first — always work on a feature branch
+
 ### Pre-Commit Quality Hook
 
 A Claude Code hook runs `oxlint`, `jscpd`, and `knip` on staged `.ts`/`.tsx` files before each commit. When the hook fails:

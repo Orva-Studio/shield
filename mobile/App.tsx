@@ -95,7 +95,7 @@ export default function App() {
   if (!user) {
     return (
       <>
-        <AuthScreen onSignIn={handleSignIn} onSignUp={handleSignUp} setUser={setUser} />
+        <AuthScreen onSignIn={handleSignIn} onSignUp={handleSignUp} />
         <StatusBar style="light" />
       </>
     );

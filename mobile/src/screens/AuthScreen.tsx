@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { theme } from '../theme';
-import type { AuthUser } from '../api';
 
 const ERROR_MESSAGES: Record<string, string> = {
   invalid: 'Invalid email or password',
@@ -23,10 +22,9 @@ const ERROR_MESSAGES: Record<string, string> = {
 interface AuthScreenProps {
   onSignIn: (email: string, password: string) => Promise<void>;
   onSignUp: (name: string, email: string, password: string) => Promise<void>;
-  setUser: (user: AuthUser) => void;
 }
 
-export function AuthScreen({ onSignIn, onSignUp, setUser }: AuthScreenProps) {
+export function AuthScreen({ onSignIn, onSignUp }: AuthScreenProps) {
   const [mode, setMode] = useState<'sign-in' | 'sign-up'>('sign-in');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
