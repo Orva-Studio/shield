@@ -3,6 +3,23 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { theme } from '../theme';
 import type { AuthUser } from '../api';
 
+const ERROR_MESSAGES: Record<string, string> = {
+  invalid: 'Invalid email or password',
+  credentials: 'Invalid email or password',
+  unauthorized: 'Invalid email or password',
+  '401': 'Invalid email or password',
+  network: 'Unable to connect. Please check your internet connection.',
+  fetch: 'Unable to connect. Please check your internet connection.',
+  'not found': 'Account not found',
+  '404': 'Account not found',
+  'already exists': 'An account with this email already exists',
+  conflict: 'An account with this email already exists',
+  '409': 'An account with this email already exists',
+  'is not a function': 'Something went wrong. Please try again.',
+  undefined: 'Something went wrong. Please try again.',
+  null: 'Something went wrong. Please try again.',
+};
+
 interface AuthScreenProps {
   onSignIn: (email: string, password: string) => Promise<void>;
   onSignUp: (name: string, email: string, password: string) => Promise<void>;
@@ -34,29 +51,16 @@ export function AuthScreen({ onSignIn, onSignUp, setUser }: AuthScreenProps) {
       }
     } catch (err) {
       const raw = err instanceof Error ? err.message : String(err);
-      setError(friendlyError(raw));
+      setError(formatErrorMessage(raw));
     } finally {
       setLoading(false);
     }
   }
 
-  function friendlyError(message: string): string {
-    const lower = message.toLowerCase();
-    if (lower.includes('invalid') || lower.includes('credentials') || lower.includes('unauthorized') || lower.includes('401')) {
-      return 'Invalid email or password';
-    }
-    if (lower.includes('network') || lower.includes('fetch')) {
-      return 'Unable to connect. Please check your internet connection.';
-    }
-    if (lower.includes('not found') || lower.includes('404')) {
-      return 'Account not found';
-    }
-    if (lower.includes('already exists') || lower.includes('conflict') || lower.includes('409')) {
-      return 'An account with this email already exists';
-    }
-    // Hide technical errors
-    if (lower.includes('is not a function') || lower.includes('undefined') || lower.includes('null')) {
-      return 'Something went wrong. Please try again.';
+  function formatErrorMessage(message: string): string {
+    const lowercaseMessage = message.toLowerCase();
+    for (const [keyword, friendly] of Object.entries(ERROR_MESSAGES)) {
+      if (lowercaseMessage.includes(keyword)) return friendly;
     }
     return message;
   }

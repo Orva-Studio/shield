@@ -25,6 +25,9 @@ The app syncs across desktop and mobile, stores data in Cloudflare D1, and uses 
 - Use TypeScript for all code
 - Use Bun as the package manager (never npm/npx — always use `bun`/`bunx`)
 - Use function declarations, not function expressions
+- Function names must start with a verb and be more than one word (e.g. `formatError` not `error`, `handleSubmit` not `submit`)
+- Prefer object lookups over chained `if`/`else if` statements; use `switch` only if object lookup doesn't fit
+- Variable names must be descriptive — avoid abbreviations or single-context-free words (e.g. `lowercaseMessage` not `lower`, `userEmail` not `email` in ambiguous contexts)
 
 ```typescript
 // Good
@@ -102,4 +105,12 @@ class TapService {
 - When testing web UI changes, use agent-browser to verify the flow end-to-end
 
 For detailed repeatable patterns and workflows, see [CODE_GUIDELINES.md](./CODE_GUIDELINES.md).
+
+### Pre-Commit Quality Hook
+
+A Claude Code hook runs `oxlint`, `jscpd`, and `knip` on staged `.ts`/`.tsx` files before each commit. When the hook fails:
+
+1. Present the list of issues to the user
+2. Ask the user which issues to fix before proceeding (don't auto-fix all)
+3. Fix only the approved issues, re-stage, and retry the commit
 
