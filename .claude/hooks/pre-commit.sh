@@ -10,12 +10,16 @@ fi
 
 ISSUES=""
 EXIT_CODE=0
+OXLINT_COUNT=0
+JSCPD_COUNT=0
+KNIP_COUNT=0
 
 # --- oxlint ---
 OXLINT_OUT=$(bunx oxlint $STAGED_FILES 2>&1 || true)
 # oxlint prints "Found N warnings/errors" when there are issues
 if echo "$OXLINT_OUT" | grep -qE 'Found [0-9]+ (warning|error)'; then
-  ISSUES+="## oxlint"$'\n'"$OXLINT_OUT"$'\n\n'
+  OXLINT_COUNT=$(echo "$OXLINT_OUT" | grep -oE 'Found [0-9]+' | grep -oE '[0-9]+' | head -1)
+  ISSUES+="## oxlint ($OXLINT_COUNT issue(s))"$'\n'"$OXLINT_OUT"$'\n\n'
   EXIT_CODE=1
 fi
 
@@ -26,7 +30,8 @@ echo "$STAGED_FILES" | tr ' ' '\n' > "$TMPFILE"
 JSCPD_OUT=$(bunx jscpd --files-list "$TMPFILE" --reporters console --silent 2>&1 || true)
 rm -f "$TMPFILE"
 if echo "$JSCPD_OUT" | grep -qiE 'found [0-9]+ clone|duplicate'; then
-  ISSUES+="## jscpd (duplicate code)"$'\n'"$JSCPD_OUT"$'\n\n'
+  JSCPD_COUNT=$(echo "$JSCPD_OUT" | grep -oiE 'found [0-9]+' | grep -oE '[0-9]+' | head -1)
+  ISSUES+="## jscpd ($JSCPD_COUNT duplicate(s))"$'\n'"$JSCPD_OUT"$'\n\n'
   EXIT_CODE=1
 fi
 
@@ -41,25 +46,22 @@ for f in $STAGED_FILES; do
   fi
 done
 if [ -n "$FILTERED_KNIP" ]; then
-  ISSUES+="## knip (unused exports/deps)"$'\n'"$FILTERED_KNIP"$'\n\n'
+  KNIP_COUNT=$(echo "$FILTERED_KNIP" | grep -c '.' || true)
+  ISSUES+="## knip ($KNIP_COUNT unused export(s))"$'\n'"$FILTERED_KNIP"$'\n\n'
   EXIT_CODE=1
 fi
 
-TOTAL_ISSUES=0
-if [ -n "$ISSUES" ]; then
-  # Count issue lines (non-empty, non-header lines)
-  TOTAL_ISSUES=$(echo "$ISSUES" | grep -cvE '^\s*$|^##' || true)
-fi
+TOTAL_ISSUES=$((OXLINT_COUNT + JSCPD_COUNT + KNIP_COUNT))
 
 if [ $EXIT_CODE -ne 0 ]; then
   echo "=== Pre-commit quality check failed ==="
-  echo "Found $TOTAL_ISSUES issue(s)."
+  echo "Found $TOTAL_ISSUES issue(s): oxlint=$OXLINT_COUNT, jscpd=$JSCPD_COUNT, knip=$KNIP_COUNT"
   echo ""
   echo "$ISSUES" | head -80
   echo "Fix these issues before committing."
 else
   echo "=== Pre-commit quality check passed ==="
-  echo "No issues found. 0 issues detected, 0 fixed."
+  echo "0 issues found (oxlint=0, jscpd=0, knip=0)."
 fi
 
 exit $EXIT_CODE
