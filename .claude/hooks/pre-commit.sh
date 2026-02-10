@@ -54,13 +54,13 @@ fi
 TOTAL_ISSUES=$((OXLINT_COUNT + JSCPD_COUNT + KNIP_COUNT))
 
 if [ $EXIT_CODE -ne 0 ]; then
-  echo "=== Pre-commit quality check failed ==="
+  echo "=== Pre-commit: issues found, commit blocked ==="
   echo "Found $TOTAL_ISSUES issue(s): oxlint=$OXLINT_COUNT, jscpd=$JSCPD_COUNT, knip=$KNIP_COUNT"
   echo ""
   echo "$ISSUES" | head -80
   echo "Fix these issues before committing."
 else
-  echo "=== Pre-commit quality check passed ==="
+  echo "=== Pre-commit: no issues, commit proceeding ==="
   echo "0 issues found (oxlint=0, jscpd=0, knip=0)."
 fi
 
