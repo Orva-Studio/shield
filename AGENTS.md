@@ -23,7 +23,7 @@ The app syncs across desktop and mobile, stores data in Cloudflare D1, and uses 
 ### General
 
 - Use TypeScript for all code
-- Use Bun as the package manager (never npm)
+- Use Bun as the package manager (never npm/npx — always use `bun`/`bunx`)
 - Use function declarations, not function expressions
 
 ```typescript
@@ -75,35 +75,31 @@ class TapService {
 }
 ```
 
+### Commits
+
+- Use [Conventional Commits](https://www.conventionalcommits.org/) for all commit messages
+- Format: `<type>(<scope>): <description>`
+- Types: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `chore`, `ci`, `perf`
+- Scopes: `mobile`, `api`, `web`, or omit for cross-cutting changes
+- Examples:
+  - `feat(mobile): add inline auth error validation`
+  - `fix(api): handle missing session token on sign-out`
+  - `refactor: extract shared theme constants`
+  - `chore: update Expo SDK dependencies`
+
 ### Testing
 
 - Use wrangler for local development and testing
 - Test API endpoints with curl during development
+- Use `agent-browser` for browser testing (available globally):
+  - `agent-browser open <url>` — navigate to a URL
+  - `agent-browser snapshot` — get accessibility tree with refs
+  - `agent-browser fill '<selector>' '<value>'` — fill input fields
+  - `agent-browser click '<selector>'` — click elements
+  - `agent-browser screenshot <path>` — capture screenshots
+  - `agent-browser eval '<js>'` — run JavaScript in the page
+  - `agent-browser close` — close the browser
+- When testing web UI changes, use agent-browser to verify the flow end-to-end
 
 For detailed repeatable patterns and workflows, see [CODE_GUIDELINES.md](./CODE_GUIDELINES.md).
 
-## Landing the Plane (Session Completion)
-
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd sync
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
