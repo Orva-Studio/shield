@@ -1,13 +1,5 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSequence,
-  withTiming,
-  Easing,
-  runOnJS,
-} from 'react-native-reanimated';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import { theme } from '../theme';
 
 interface TapCircleProps {
@@ -20,21 +12,9 @@ export function TapCircle({ onTap, loading }: TapCircleProps) {
   const [tapTimeout, setTapTimeout] = useState<NodeJS.Timeout | null>(null);
   const [lastType, setLastType] = useState<'resist' | 'yield' | null>(null);
 
-  const scale = useSharedValue(1);
-  const glowOpacity = useSharedValue(0);
-  const borderOpacity = useSharedValue(0.6);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: glowOpacity.value,
-  }));
-
-  const borderStyle = useAnimatedStyle(() => ({
-    opacity: borderOpacity.value,
-  }));
+  const scale = useRef(new Animated.Value(1)).current;
+  const glowOpacity = useRef(new Animated.Value(0)).current;
+  const borderOpacity = useRef(new Animated.Value(0.6)).current;
 
   useEffect(() => {
     return () => {
@@ -50,12 +30,12 @@ export function TapCircle({ onTap, loading }: TapCircleProps) {
       if (tapTimeout) clearTimeout(tapTimeout);
       setLastType('yield');
       triggerTapAnimation('yield');
-      setTimeout(() => runOnJS(onTap)('yield'), 150);
+      setTimeout(() => onTap('yield'), 150);
     } else {
       const timeout = setTimeout(() => {
         setLastType('resist');
         triggerTapAnimation('resist');
-        setTimeout(() => runOnJS(onTap)('resist'), 150);
+        setTimeout(() => onTap('resist'), 150);
       }, 300);
       setTapTimeout(timeout);
     }
@@ -63,21 +43,21 @@ export function TapCircle({ onTap, loading }: TapCircleProps) {
     setLastTapTime(now);
   }
 
-  function triggerTapAnimation(type: 'resist' | 'yield') {
-    scale.value = withSequence(
-      withTiming(0.96, { duration: 120, easing: Easing.ease }),
-      withTiming(1, { duration: 200, easing: Easing.ease })
-    );
+  function triggerTapAnimation(_type: 'resist' | 'yield') {
+    Animated.sequence([
+      Animated.timing(scale, { toValue: 0.96, duration: 120, easing: Easing.ease, useNativeDriver: true }),
+      Animated.timing(scale, { toValue: 1, duration: 200, easing: Easing.ease, useNativeDriver: true }),
+    ]).start();
 
-    glowOpacity.value = withSequence(
-      withTiming(0.8, { duration: 150, easing: Easing.ease }),
-      withTiming(0, { duration: 400, easing: Easing.ease })
-    );
+    Animated.sequence([
+      Animated.timing(glowOpacity, { toValue: 0.8, duration: 150, easing: Easing.ease, useNativeDriver: true }),
+      Animated.timing(glowOpacity, { toValue: 0, duration: 400, easing: Easing.ease, useNativeDriver: true }),
+    ]).start();
 
-    borderOpacity.value = withSequence(
-      withTiming(1, { duration: 100, easing: Easing.ease }),
-      withTiming(0.6, { duration: 300, easing: Easing.ease })
-    );
+    Animated.sequence([
+      Animated.timing(borderOpacity, { toValue: 1, duration: 100, easing: Easing.ease, useNativeDriver: true }),
+      Animated.timing(borderOpacity, { toValue: 0.6, duration: 300, easing: Easing.ease, useNativeDriver: true }),
+    ]).start();
   }
 
   function getLabel(): string {
@@ -87,11 +67,11 @@ export function TapCircle({ onTap, loading }: TapCircleProps) {
   }
 
   return (
-    <Animated.View style={styles.container}>
-      <Animated.View style={[styles.glow, glowStyle]} />
-      <Animated.View style={[styles.circle, animatedStyle]}>
+    <View style={styles.container}>
+      <Animated.View style={[styles.glow, { opacity: glowOpacity }]} />
+      <Animated.View style={[styles.circle, { transform: [{ scale }] }]}>
         <Animated.View
-          style={[StyleSheet.absoluteFill, styles.borderOverlay, borderStyle]}
+          style={[StyleSheet.absoluteFill, styles.borderOverlay, { opacity: borderOpacity }]}
         />
         <View style={styles.innerContent} onTouchEnd={handlePress}>
           <View style={styles.dot} />
@@ -99,7 +79,7 @@ export function TapCircle({ onTap, loading }: TapCircleProps) {
         </View>
       </Animated.View>
       <Text style={styles.label}>{getLabel()}</Text>
-    </Animated.View>
+    </View>
   );
 }
 

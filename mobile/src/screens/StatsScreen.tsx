@@ -1,12 +1,32 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ChevronLeft } from 'react-native-feather';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { theme } from '../theme';
 import { getStats, type TapStats } from '../api';
 
 interface StatsScreenProps {
   navigation: any;
+}
+
+function FadeInView({ delay = 0, children, style }: { delay?: number; children: React.ReactNode; style?: any }) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(opacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.timing(translateY, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]).start();
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return (
+    <Animated.View style={[style, { opacity, transform: [{ translateY }] }]}>
+      {children}
+    </Animated.View>
+  );
 }
 
 export function StatsScreen({ navigation }: StatsScreenProps) {
@@ -70,12 +90,12 @@ export function StatsScreen({ navigation }: StatsScreenProps) {
       {renderHeader()}
 
       <View style={styles.content}>
-        <Animated.View entering={FadeInDown.delay(0)} style={styles.totalContainer}>
+        <FadeInView delay={0} style={styles.totalContainer}>
           <Text style={styles.totalNumber}>{total}</Text>
           <Text style={styles.totalLabel}>TOTAL TAPS</Text>
-        </Animated.View>
+        </FadeInView>
 
-        <Animated.View entering={FadeInDown.delay(150)} style={styles.statRow}>
+        <FadeInView delay={150} style={styles.statRow}>
           <View style={[styles.statCard, styles.resistCard]}>
             <Text style={styles.statNumber}>{stats.total_resists}</Text>
             <Text style={styles.statLabel}>RESIST</Text>
@@ -84,12 +104,12 @@ export function StatsScreen({ navigation }: StatsScreenProps) {
             <Text style={styles.statNumber}>{stats.total_yields}</Text>
             <Text style={styles.statLabel}>YIELD</Text>
           </View>
-        </Animated.View>
+        </FadeInView>
 
-        <Animated.View entering={FadeInDown.delay(300)} style={styles.ratioCard}>
+        <FadeInView delay={300} style={styles.ratioCard}>
           <Text style={styles.ratioNumber}>{resistRatio.toFixed(1)}%</Text>
           <Text style={styles.ratioLabel}>RESIST RATIO</Text>
-        </Animated.View>
+        </FadeInView>
       </View>
     </View>
   );
