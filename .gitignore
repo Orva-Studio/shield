@@ -35,6 +35,11 @@ logs/
 # Testing
 coverage/
 
+# Expo
+mobile/.expo/
+mobile/ios/
+mobile/android/
+
 # Beads (local AI context)
 .beads/
 
