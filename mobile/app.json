@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.tap-talk-pray"
+      "bundleIdentifier": "com.shieldtap.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,8 @@
         "backgroundColor": "#0A0A0A"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.shieldtap.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
