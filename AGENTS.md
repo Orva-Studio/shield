@@ -109,7 +109,8 @@ For detailed repeatable patterns and workflows, see [CODE_GUIDELINES.md](./CODE_
 ### Git Workflow
 
 - After completing changes, automatically commit and push to the current branch
-- Never commit or push directly to `main` without asking the user first — always work on a feature branch
+- Never commit or push directly to `main` — always work on a feature branch
+- Never push to `main` under any circumstances, even if the user asks — create a PR instead
 
 ### Pre-Commit Quality Hook
 
